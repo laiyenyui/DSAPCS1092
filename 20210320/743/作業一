@@ -1,0 +1,185 @@
+//*********************** ************************************************************************/
+// Ref. 1: Non-recursive Permutation Function Wu, Yi-Hung@ICE.CYCU    2021
+// Please fill the required code on your own to make it work.
+//************************************************************************************************/
+#include <iostream>															        //���n���Y��, �Ų����I
+#include <iomanip>
+#include <new>
+#include <cstdio>
+#include <cstdlib>
+#include <string>
+
+using namespace std;																// �зǨ禡�w���R�W�Ŷ�, �Ų����I
+#define OUTPUT_NO   1000															// ��X���ƪ��妸��� 
+
+// (1) ��J�U���Ʃһݪ��ѼƦC�i�ϽsĶ���\ 
+
+void solveF(unsigned long);															// ���Ȥ@
+
+unsigned long getN(int, unsigned long);												// ��J���w�d�򤺪��@�Ӿ�� 
+bool openData(int);																	// �ʺA�t�m�G�Ӱ}�C���Ŷ� 
+void PermutationN( int);																// ���ȤG
+void outputSeries(void);															// ��X�@�����G 
+void closeData(void);																// ����ʺA�}�C���Ŷ� 
+// �H�W�ON�Ӭ۲��ƦC���D���j�禡�ŧi�C
+
+bool            *used = NULL;														// ���ܬO�_�ϥΪ����L�� 
+int             *ans = NULL;														// �����ثe���@�����G 
+unsigned long   N, num, last;
+// �H�W�O�����ܼ�
+
+int main(void)
+{   int     command = 0;													   		// �ާ@���O
+// ---------------------- �ާ@���� ----------------------
+    do {    num = 0;
+            last = 1;
+            cout << endl << "***** ���O���� *****";
+            cout << endl << "* 0. �פ�{��      *";
+            cout << endl << "* 1. �p����w�ƦC  *";
+            cout << endl << "* 2. �U�ج۲��ƦC  *";
+            cout << endl << "********************";
+			cout << endl << "Input a command(0, 1, 2): ";
+	    	cin >> command;															//����Ū���ާ@���O
+            switch (command)
+			{	case 0: break;
+			    case 1: N = getN(0, 999999999);                                 	// ���o��J���N��
+                        solveF(N);													// ���Ȥ@
+                        break;
+			    case 2:	// �C�|�q1,2,3..n�Ӥ��P�Ʀr�Φ����Ҧ��u�۲��v�ƦC
+                        N = getN(2, 12);                                        	// ���o��J���N��
+                        for (int i = 2; i <= N; i++)
+                            last *= i;												// �ƦC�`��
+                        if (openData(N))                                      		// �إ߼Ȧs��T���}�C
+                            PermutationN(N);										// ���ȤG
+                        closeData();                                             	// ����Ȧs��T���Ŷ�
+                        break;
+                default: cout << endl << "Command does not exist!" << endl;
+			}	// end switch
+    } while (command != 0); 													 	// ���O'0': �����D�{��
+	system("pause");																// �Ȱ��e��
+    return 0;
+}	//�D�{�ǵ���
+//**************************************************************************************************************************/
+
+void solveF(unsigned long value)
+{   unsigned long sum;
+
+    cout << endl << "Output: ";
+    while (value / 10)																// ���u�O��@���Ӧ�Ʀr 
+    {
+        cout << value << ", ";
+        sum = 0;
+        while (value > 0)
+        {
+// (2) ��g�U��G��ԭz�i�������Ȥ@ 
+             sum = sum +(value % 10);												// �[�J�̥k�����@�ӼƦr 
+             value = value / 10;													// �h���̥k�����@�ӼƦr 
+        }   // end inner-while
+        value = sum;																// ���^�X���[�`�Ʀr 
+    }   // end outer-while
+    cout << value << endl;
+}   // end solveF
+//**************************************************************************************************************************/
+
+unsigned long getN(int minM, unsigned long maxM)
+{   unsigned long   M;
+    string          inputS;
+    bool            isNum;
+
+    do {
+        cout << endl << "Input a number: ";
+        cin >> inputS;
+        isNum = true;
+        for (int i = 0; i < inputS.length(); i++)
+// (3) ��g�U��G��if�ԭz������i��������� 
+            if ( inputS[i] < 0|| inputS [i] > 9)									// �b'0'~'9'�d�򤧥~�N�O�D�Ʀr 
+                isNum = false;
+        if (!isNum)
+            continue;
+        M = strtoul(inputS.c_str(), NULL, 10);										// �N�r����s������� 
+        if ( M >= minM | M <= maxM )												// �T�{�Ʀr 
+            break;																	// �b����d�򤺤~�⧹�� 
+        else
+            cout << endl << "### The number must be in [" << minM << "," << maxM << "] ###" << endl;
+    } while (true);   // end do-while
+    return M;										                           	
+}   // end getM
+
+bool openData(int arraySize)
+{   try {
+	// (4) ��g�U��G��ԭz�i����ans�ܼƪ��ʺA�t�m�M���w��l�� 
+
+        used = new bool [arraySize];												// �ʺA�t�m�}�C�s���L��
+        ans = new int [arraySize];													// �ʺA�t�m�}�C�s�Ʀr
+        for (int i = 0; i < arraySize; i++)
+        {   used[i] = false;														// �w�]�Ȫ��ܩ|���ϥ� 
+            ;																// �w�]��0�N���ثe����J�Ʀr1
+        }   // end for
+    }	// end try
+    catch (std::bad_alloc& ba)														// �t�m�Ŷ�����
+    {   std::cerr << endl << "bad_alloc caught: " << ba.what() << endl;
+        return false;
+    }   // end catch
+    return true; 
+}   // end openData
+
+void PermutationN(int N)
+{   int level = 0, start = 0;
+
+        ans[level] = start;															// �Ĥ@�Ӧ�m�q0�}�l��A�N���Ʀr1
+        used[start] = true;															// ������m0�N���Ʀr1�w��Jans
+        level++;																	// �k����U�@�Ӧ�m
+        do
+        {   if (level < N)															// �|���F����w����
+            {
+                for (int i = 0; i < N; i++)											// �̧ǿ�ܤU�@�ӼƦr
+                    if (!used[i])													// �u���|����Jans���Ʀr
+                    {   ans[level] = i;												// ��Ʀr��J�ثe��m
+                        used[i] = true;												// �����Ʀr�w��Jans 
+                        level++;													// �k����U�@�Ӧ�m
+                        break;														// ���@�ӼƦr�N����for�j�� 
+                    }   // end for-if
+            }   // end if
+            else																	// ���Wlevel�רs�|����N
+            {   bool	backtrack;
+
+                num++;																// �W�[�@�����G 
+
+                if ((N <= 6) || (num <= N) || (!(num % OUTPUT_NO)) || (num == last))	// �e�X���B�妸�B�̫�@�� 
+                    outputSeries();													// �L�X���G
+                level--;
+                used[ ans[level] ] = false;                                      	// �̥k�����@�ӼƦr��_���i�� 
+                backtrack = true;													// �}�l�ѥk�V���h�^ 
+                while ((level > 0) && (backtrack))
+                {   level--;
+                    used[ans[level]] = false;                             			// �ثe���Ʀr��_���i�� 
+                    for (int i = ans[level] + 1; i < N; i++)              			// ��ܥثe�Ʀr���᪺�i�μƦr
+                        if (!used[i])												// �����e�z�B�J 
+                        {   
+	// (5) ��g���B�ԭz�i�������ȤG 
+
+                            backtrack = false;										// ���@�ӴN���X�j�� 
+                            break;
+                        }   // end for-if            }   // end else
+                }   // end inner-while
+            }   // end else
+        } while (level); // end do-while
+}   // end PermutationN
+
+void outputSeries(void)
+{
+    cout << "[" << num << "]";														// �ثe���� 
+    for (int i = 0; i < N; i++)
+        cout << " " << ans[i] + 1;													// �q0�}�l�����޻ݭn�[�@ 
+    cout << endl;
+}   // end outputSeries
+
+void closeData()
+{   delete [] used;																	// ����ʺA�t�m���Ŷ� 
+	delete [] ans;
+}   // end closeData
+
+//**************************************************************************************************************************/
+// �H�W�ON�Ӭ۲��ƦC���D���j�禡
+//**************************************************************************************************************************/
+
